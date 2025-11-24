@@ -1,0 +1,334 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Application models
+model User {
+  id                String       @id @default(cuid())
+  name              String?
+  email             String       @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  skills            String[]
+  interests         String[]
+  capital           String?
+  timeCommitment    String?
+  experienceLevel   String?
+  onboardingComplete Boolean     @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  accounts          Account[]
+  sessions          Session[]
+  businesses        Business[]
+  validations       Validation[]
+  opportunityMatches OpportunityMatch[]
+}
+
+model Opportunity {
+  id                  String    @id @default(cuid())
+  title               String
+  description         String    @db.Text
+  niche               String
+  estimatedRevenueMin Int
+  estimatedRevenueMax Int
+  startupCost         Int
+  timeToLaunchHours   Int
+  difficulty          String
+  marketSize          String
+  competitionLevel    String
+  targetAudience      String    @db.Text
+  keySuccessFactors   String[]
+  reasoning           String    @db.Text
+  nextSteps           Json
+  sourceData          Json
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  validations         Validation[]
+  matches             OpportunityMatch[]
+
+  @@index([niche])
+  @@index([difficulty])
+  @@index([createdAt])
+}
+
+model OpportunityMatch {
+  id              String      @id @default(cuid())
+  userId          String
+  opportunityId   String
+  matchScore      Int
+  skillsMatch     Int
+  interestsMatch  Int
+  capitalMatch    Int
+  timeMatch       Int
+  explanation     String      @db.Text
+  createdAt       DateTime    @default(now())
+  
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, opportunityId])
+  @@index([userId, matchScore])
+}
+
+model Validation {
+  id                String      @id @default(cuid())
+  userId            String
+  opportunityId     String
+  marketDemand      Int
+  competitorGaps    Int
+  profitability     Int
+  riskScore         Int
+  revenueMonth1Min  Int
+  revenueMonth1Max  Int
+  revenueMonth3Min  Int
+  revenueMonth3Max  Int
+  revenueMonth6Min  Int
+  revenueMonth6Max  Int
+  risks             Json
+  actionPlan        Json
+  createdAt         DateTime    @default(now())
+  
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity       Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([opportunityId])
+}
+
+model Business {
+  id                String    @id @default(cuid())
+  userId            String
+  opportunityTitle  String
+  niche             String
+  status            String    @default("planning")
+  domainName        String?
+  brandIdentity     Json?
+  mvpSpec           Json?
+  landingPageCopy   Json?
+  marketingPlan     Json?
+  pricingModel      Json?
+  legalChecklist    Json?
+  wizardData        Json?     // Complete wizard data from all 8 steps
+  launchProgress    Int       @default(0)
+  launchedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metrics           BusinessMetric[]
+  website           Website?
+  customers         Customer[]
+  emailCampaigns    EmailCampaign[]
+  payments          Payment[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Website Builder Models
+model Website {
+  id            String    @id @default(cuid())
+  businessId    String    @unique
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  // Domain
+  subdomain     String    @unique
+  customDomain  String?   @unique
+  sslEnabled    Boolean   @default(false)
+  
+  // Content
+  theme         Json      // Colors, fonts, logo, etc.
+  seo           Json?     // Global SEO settings
+  
+  // Deployment
+  deploymentUrl String?
+  lastDeployed  DateTime?
+  buildStatus   String    @default("draft") // draft, building, live, failed
+  
+  pages         Page[]
+  analytics     Analytics[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([subdomain])
+  @@index([customDomain])
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  websiteId   String
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  slug        String   // e.g., "/", "/about", "/pricing"
+  title       String
+  content     Json     // Page builder JSON
+  seo         Json?    // Page-specific SEO
+  
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([websiteId, slug])
+  @@index([websiteId])
+}
+
+model Analytics {
+  id          String   @id @default(cuid())
+  websiteId   String
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  date        DateTime
+  visitors    Int      @default(0)
+  pageViews   Int      @default(0)
+  bounceRate  Float    @default(0)
+  avgDuration Int      @default(0) // seconds
+  
+  // Traffic sources
+  sources     Json?    // { organic: 100, direct: 50, social: 30 }
+  devices     Json?    // { desktop: 120, mobile: 60 }
+  countries   Json?    // { US: 100, UK: 30, CA: 20 }
+  
+  @@unique([websiteId, date])
+  @@index([websiteId, date])
+}
+
+model Customer {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  email       String
+  name        String?
+  phone       String?
+  tags        String[]  // ["vip", "subscriber", etc.]
+  
+  // Engagement
+  firstSeen   DateTime  @default(now())
+  lastSeen    DateTime  @default(now())
+  totalValue  Float     @default(0)
+  
+  // Custom fields
+  metadata    Json?
+  
+  payments    Payment[]
+  
+  @@unique([businessId, email])
+  @@index([businessId])
+}
+
+model EmailCampaign {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  name        String
+  subject     String
+  content     Json      // Email builder JSON
+  
+  // Targeting
+  segment     Json?     // Filter criteria
+  
+  // Status
+  status      String    @default("draft") // draft, scheduled, sending, sent
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  
+  // Stats
+  sent        Int       @default(0)
+  opened      Int       @default(0)
+  clicked     Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([businessId])
+  @@index([status])
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  amount      Float
+  currency    String    @default("usd")
+  status      String    // pending, succeeded, failed, refunded
+  
+  stripeId    String?   @unique
+  description String?
+  
+  createdAt   DateTime  @default(now())
+
+  @@index([businessId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model BusinessMetric {
+  id          String    @id @default(cuid())
+  businessId  String
+  date        DateTime  @default(now())
+  visitors    Int       @default(0)
+  leads       Int       @default(0)
+  customers   Int       @default(0)
+  revenue     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  @@unique([businessId, date])
+  @@index([businessId, date])
+}
