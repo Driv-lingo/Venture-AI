@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Rocket, TrendingUp, Briefcase, DollarSign, Users, ArrowRight, Play, Pause, CheckCircle, Globe } from 'lucide-react';
+import { Rocket, TrendingUp, Briefcase, DollarSign, Users, ArrowRight, Play, Pause, CheckCircle, Globe, Sparkles, BarChart3, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
@@ -57,8 +57,14 @@ export default function DashboardPage() {
 
   if (loading || status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl animate-pulse" />
+            <Rocket className="relative h-12 w-12 text-primary animate-bounce" />
+          </div>
+          <p className="text-lg font-medium text-muted-foreground">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -102,23 +108,26 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Rocket className="h-7 w-7 text-primary" />
-              <span className="text-xl font-bold tracking-tight">VENTUREAI</span>
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-xl" />
+                <Rocket className="relative h-8 w-8 text-primary" />
+              </div>
+              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">VentureAI</span>
             </div>
-            <nav className="flex items-center gap-2">
+            <nav className="flex items-center gap-3">
               <Link href="/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
+                <Button variant="ghost" size="sm" className="font-medium">Dashboard</Button>
               </Link>
               <Link href="/opportunities">
-                <Button variant="ghost" size="sm">Opportunities</Button>
+                <Button variant="ghost" size="sm" className="font-medium">Opportunities</Button>
               </Link>
-              <div className="h-8 w-8 border border-border bg-muted flex items-center justify-center text-sm font-bold">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-lg">
                 {profile?.name?.[0]?.toUpperCase() || 'U'}
               </div>
             </nav>
@@ -128,149 +137,186 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-6 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 tracking-tight">
-            Welcome back, {profile?.name || 'Entrepreneur'}
-          </h1>
-          <p className="text-muted-foreground">
-            Mission Control — Here's what's happening with your businesses
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className="text-4xl font-bold tracking-tight">
+              Welcome back, {profile?.name || 'Entrepreneur'}
+            </h1>
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <p className="text-lg text-muted-foreground">
+            Here's what's happening with your businesses
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card className="border-border">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium uppercase tracking-wide">Total Businesses</CardDescription>
+        <div className="grid md:grid-cols-4 gap-6 mb-10">
+          <Card className="relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Businesses</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{businesses.length}</span>
-                <Briefcase className="h-5 w-5 text-primary" />
+                <span className="text-4xl font-bold">{businesses.length}</span>
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <Briefcase className="h-6 w-6 text-primary" />
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground mt-3">Across all stages</p>
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium uppercase tracking-wide">Active Businesses</CardDescription>
+          <Card className="relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Active Businesses</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{activeBusinesses}</span>
-                <TrendingUp className="h-5 w-5 text-primary" />
+                <span className="text-4xl font-bold">{activeBusinesses}</span>
+                <div className="p-3 rounded-xl bg-green-500/10">
+                  <Activity className="h-6 w-6 text-green-600" />
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground mt-3">Currently live</p>
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium uppercase tracking-wide">Total Revenue</CardDescription>
+          <Card className="relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Revenue</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">${totalRevenue.toLocaleString()}</span>
-                <DollarSign className="h-5 w-5 text-primary" />
+                <span className="text-4xl font-bold">${totalRevenue.toLocaleString()}</span>
+                <div className="p-3 rounded-xl bg-purple-500/10">
+                  <DollarSign className="h-6 w-6 text-purple-600" />
+                </div>
               </div>
+              <p className="text-xs text-green-600 font-medium mt-3">+12.5% this month</p>
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium uppercase tracking-wide">Total Customers</CardDescription>
+          <Card className="relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-transparent rounded-full -mr-16 -mt-16" />
+            <CardHeader className="pb-3">
+              <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Customers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{totalCustomers}</span>
-                <Users className="h-5 w-5 text-primary" />
+                <span className="text-4xl font-bold">{totalCustomers}</span>
+                <div className="p-3 rounded-xl bg-orange-500/10">
+                  <Users className="h-6 w-6 text-orange-600" />
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground mt-3">Across all businesses</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <Card className="border-border bg-card">
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
+          <Card className="group relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Rocket className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Rocket className="h-5 w-5 text-primary" />
+                </div>
                 Discover New Opportunities
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-base">
                 Find validated business ideas matched to your profile
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/opportunities">
-                <Button className="w-full bg-primary hover:bg-primary/90">
+              <Button asChild className="w-full gradient-primary font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                <Link href="/opportunities">
                   Browse Opportunities
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 
-          <Card className="border-border bg-card">
+          <Card className="group relative overflow-hidden border-border bg-card hover:shadow-premium transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                </div>
                 Launch a New Business
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-base">
                 Start your business launch wizard with AI guidance
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/opportunities">
-                <Button variant="outline" className="w-full">
+              <Button asChild variant="outline" className="w-full font-semibold border-2 hover:bg-accent">
+                <Link href="/opportunities">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
 
         {/* Businesses List */}
-        <Card className="border-border">
+        <Card className="border-border bg-card shadow-premium">
           <CardHeader>
-            <CardTitle className="text-lg">Your Businesses</CardTitle>
-            <CardDescription>
-              Manage and track your launched businesses
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                  Your Businesses
+                </CardTitle>
+                <CardDescription className="text-base mt-1">
+                  Manage and track your launched businesses
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {businesses.length === 0 ? (
-              <div className="text-center py-12">
-                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">You haven't launched any businesses yet</p>
+              <div className="text-center py-16">
+                <div className="relative inline-block mb-6">
+                  <div className="absolute inset-0 bg-primary/20 blur-2xl" />
+                  <Briefcase className="relative h-16 w-16 text-muted-foreground mx-auto" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">No businesses yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">Start your entrepreneurial journey by exploring validated business opportunities</p>
                 <Link href="/opportunities">
-                  <Button className="bg-primary hover:bg-primary/90">
+                  <Button className="gradient-primary font-semibold shadow-lg shadow-primary/25">
                     Explore Opportunities
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {businesses.map((business) => {
                   const latestMetric = business.metrics?.[0];
                   return (
                     <div
                       key={business.id}
-                      className="p-4 border border-border hover:shadow-md transition-shadow"
+                      className="p-6 rounded-xl border border-border bg-gradient-to-br from-card to-card/50 hover:shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                     >
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold">{business.opportunityTitle}</h3>
-                          <p className="text-sm text-muted-foreground">{business.niche}</p>
+                          <h3 className="text-xl font-bold">{business.opportunityTitle}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{business.niche}</p>
                           {business.launchProgress > 0 && business.launchProgress < 100 && (
-                            <div className="mt-2">
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                            <div className="mt-3">
+                              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
                                 <span>Launch Progress: {business.launchProgress}%</span>
                               </div>
-                              <div className="h-1 bg-muted overflow-hidden">
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
                                 <div 
-                                  className="h-full bg-primary"
+                                  className="h-full bg-gradient-to-r from-primary to-purple-600 transition-all duration-500"
                                   style={{ width: `${business.launchProgress}%` }}
                                 />
                               </div>
@@ -282,10 +328,10 @@ export default function DashboardPage() {
                             variant={business.status === 'live' ? 'default' : 'outline'}
                             className={
                               business.status === 'live'
-                                ? 'bg-primary text-primary-foreground'
+                                ? 'bg-green-500 text-white font-semibold px-3 py-1'
                                 : business.status === 'building'
-                                ? 'bg-secondary text-secondary-foreground'
-                                : ''
+                                ? 'bg-orange-500 text-white font-semibold px-3 py-1'
+                                : 'font-semibold px-3 py-1'
                             }
                           >
                             {business.status.toUpperCase()}
@@ -361,22 +407,22 @@ export default function DashboardPage() {
                       </div>
 
                       {latestMetric && (
-                        <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-white/10">
-                          <div>
-                            <p className="text-xs text-gray-500">Visitors</p>
-                            <p className="text-lg font-semibold text-white">{latestMetric.visitors}</p>
+                        <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-border">
+                          <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Visitors</p>
+                            <p className="text-2xl font-bold">{latestMetric.visitors}</p>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Leads</p>
-                            <p className="text-lg font-semibold text-white">{latestMetric.leads}</p>
+                          <div className="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Leads</p>
+                            <p className="text-2xl font-bold">{latestMetric.leads}</p>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Customers</p>
-                            <p className="text-lg font-semibold text-white">{latestMetric.customers}</p>
+                          <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Customers</p>
+                            <p className="text-2xl font-bold">{latestMetric.customers}</p>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Revenue</p>
-                            <p className="text-lg font-semibold text-white">${latestMetric.revenue}</p>
+                          <div className="text-center p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Revenue</p>
+                            <p className="text-2xl font-bold">${latestMetric.revenue}</p>
                           </div>
                         </div>
                       )}

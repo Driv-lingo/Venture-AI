@@ -30,6 +30,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { PageRenderer } from '@/components/PageRenderer';
 import { PageEditor } from '@/components/PageEditor';
+import { TemplateLibrary } from '@/components/TemplateLibrary';
+import { SectionBuilder } from '@/components/SectionBuilder';
 
 export default function WebsiteBuilderPage() {
   const { data: session, status } = useSession();
@@ -46,6 +48,8 @@ export default function WebsiteBuilderPage() {
   const [activeTab, setActiveTab] = useState('design');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview');
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showSectionBuilder, setShowSectionBuilder] = useState(false);
 
   // Website configuration
   const [config, setConfig] = useState({
@@ -298,6 +302,23 @@ export default function WebsiteBuilderPage() {
     }
   };
 
+  const handleSelectTemplate = (template: any) => {
+    setConfig(prev => ({
+      ...prev,
+      theme: {
+        ...prev.theme,
+        primaryColor: template.colors.primary,
+        secondaryColor: template.colors.secondary,
+        accentColor: template.colors.accent,
+      },
+    }));
+    toast.success(`${template.name} template applied!`);
+  };
+
+  const handleAddSection = (section: any) => {
+    toast.success(`${section.name} section added!`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -308,6 +329,20 @@ export default function WebsiteBuilderPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Template Library Modal */}
+      <TemplateLibrary 
+        open={showTemplateLibrary}
+        onClose={() => setShowTemplateLibrary(false)}
+        onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Section Builder Modal */}
+      <SectionBuilder
+        open={showSectionBuilder}
+        onClose={() => setShowSectionBuilder(false)}
+        onAddSection={handleAddSection}
+      />
+
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
